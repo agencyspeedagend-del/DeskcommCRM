@@ -1,0 +1,6 @@
+# Patch local sobre a v1.69.0: envia page_id (META_PAGE_ID) e telefone só com dígitos à Meta.
+FROM ghcr.io/melgarafael/deskcomm-worker:1.69.0
+RUN F=lib/plataformas-de-anuncio/meta/conversions.ts \
+ && grep -q '  if (conversao.telefone) userData.ph = \[hash(conversao.telefone)\];' $F \
+ && sed -i 's/  if (conversao.telefone) userData.ph = \[hash(conversao.telefone)\];/  if (conversao.telefone) userData.ph = [hash(conversao.telefone.replace(\/\\D\/g, ""))];\n  if (process.env.META_PAGE_ID) userData.page_id = process.env.META_PAGE_ID;/' $F \
+ && grep -q 'userData.page_id = process.env.META_PAGE_ID' $F
